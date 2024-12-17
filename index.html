@@ -11,7 +11,7 @@
             line-height: 1.6;
             margin: 0;
             padding: 20px;
-            background-color: #f4f4f4;
+            background-color: #add8e6; /* Hellblau */
         }
         .container {
             max-width: 800px;
@@ -23,7 +23,7 @@
         }
         h1 {
             text-align: center;
-            color: #333;
+            color: #00008b; /* Dunkelblau */
         }
         .form-group {
             margin-bottom: 15px;
@@ -31,6 +31,7 @@
         .form-group label {
             display: block;
             margin-bottom: 5px;
+            font-weight: bold;
         }
         .input-group {
             display: flex;
@@ -39,36 +40,35 @@
         .input-group input {
             flex-grow: 1;
             margin-right: 10px;
-            padding: 8px;
+            padding: 12px;
             border: 1px solid #ddd;
             border-radius: 4px;
+            font-size: 1.2em; /* Größere Eingabefelder */
         }
         .input-group .unit {
             min-width: 60px;
             text-align: left;
         }
         .input-group select {
-            padding: 8px;
+            padding: 12px;
             border: 1px solid #ddd;
             border-radius: 4px;
             background-color: white;
+            font-size: 1.2em;
         }
         select#gender {
             width: 100%;
-            padding: 8px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            background-color: white;
         }
         button {
             display: block;
             width: 100%;
-            padding: 10px;
+            padding: 14px;
             background-color: #4CAF50;
             color: white;
             border: none;
             border-radius: 4px;
             cursor: pointer;
+            font-size: 1.2em;
             margin-top: 20px;
         }
         button:hover {
@@ -82,6 +82,16 @@
         }
         #chartContainer {
             margin-top: 20px;
+        }
+        #errorMessages {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #ffe6e6;
+            border: 1px solid #ffcccc;
+            border-radius: 4px;
+            color: #b30000;
+            font-weight: bold;
+            display: none;
         }
         .tooltip {
             position: relative;
@@ -191,6 +201,8 @@
             <button type="submit">Berechnen</button>
         </form>
         
+        <div id="errorMessages"></div>
+        
         <div id="result"></div>
         <div id="chartContainer">
             <canvas id="bakChart"></canvas>
@@ -200,31 +212,16 @@
     <script>
         let bakChart;
 
-        document.getElementById('alcoholForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const weight = parseFloat(document.getElementById('weight').value);
-            const height = parseFloat(document.getElementById('height').value);
-            const gender = document.getElementById('gender').value;
-            const duration = parseFloat(document.getElementById('duration').value);
-            const beerVolume = parseFloat(document.getElementById('beerVolume').value) || 0;
-            const wineVolume = parseFloat(document.getElementById('wineVolume').value) || 0;
-            const spiritsVolume = parseFloat(document.getElementById('spiritsVolume').value) || 0;
-            const spiritsUnit = document.getElementById('spiritsUnit').value;
-            
-            // Überprüfen, ob mindestens eine Alkoholart eingegeben wurde
-            if (beerVolume === 0 && wineVolume === 0 && spiritsVolume === 0) {
-                alert("Bitte geben Sie mindestens eine Alkoholart ein.");
-                return;
-            }
+        // Funktionen zur besseren Strukturierung
 
+        function calculateAlcoholGrams(beerVolume, wineVolume, spiritsVolume, spiritsUnit) {
             // Alkoholgehalt in g/100ml
             const beerAlcohol = 5;
             const wineAlcohol = 12;
             const spiritsAlcohol = 40;
-            
+
             // Konvertiere Spirituosenmenge in Liter
-            let spiritsLiters;
+            let spiritsLiters = 0;
             switch(spiritsUnit) {
                 case 'l':
                     spiritsLiters = spiritsVolume;
@@ -241,7 +238,10 @@
             const alcoholGrams = (beerVolume * 1000 * beerAlcohol / 100 * 0.8) +
                                  (wineVolume * 1000 * wineAlcohol / 100 * 0.8) +
                                  (spiritsLiters * 1000 * spiritsAlcohol / 100 * 0.8);
-            
+            return alcoholGrams;
+        }
+
+        function calculateDistributionFactor(weight, height, gender) {
             // Berechnung des Reduktionsfaktors nach Seidl et al.
             let r;
             if (gender === 'male') {
@@ -249,36 +249,99 @@
             } else {
                 r = 0.31223 - 0.006446 * weight + 0.004466 * height;
             }
-            
-            // Berechnung der theoretischen BAK
-            let maxBak = alcoholGrams / (weight * r);
-            
-            // Abzug des Resorptionsdefizits (15%)
-            maxBak -= maxBak * 0.15;
-            
-            // Berechnung des BAK-Verlaufs
+            return r;
+        }
+
+        function calculateBAKData(duration, bakAtDuration) {
+            // Erzeuge einen einfachen linearen Verlauf von 0 (bei Stunde 0) bis bakAtDuration (bei angegebener Dauer)
             const bakData = [];
             const timeLabels = [];
-            for (let hour = 0; hour <= duration + 12; hour += 0.5) {
-                let bak = maxBak - (hour * 0.15);
-                bak = Math.max(0, bak);
-                bakData.push(bak);
-                timeLabels.push(hour);
+            const step = 0.5;
+            const steps = duration / step;
+
+            for (let i = 0; i <= steps; i++) {
+                const currentHour = i * step;
+                const currentBAK = (bakAtDuration / duration) * currentHour; // linearer Anstieg
+                bakData.push(currentBAK);
+                timeLabels.push(currentHour.toFixed(1));
             }
-            
+
+            return { timeLabels, bakData };
+        }
+
+        function showError(msg) {
+            const errorDiv = document.getElementById('errorMessages');
+            errorDiv.style.display = 'block';
+            errorDiv.innerHTML = msg;
+        }
+
+        function clearErrors() {
+            const errorDiv = document.getElementById('errorMessages');
+            errorDiv.style.display = 'none';
+            errorDiv.innerHTML = '';
+        }
+
+        document.getElementById('alcoholForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            clearErrors();
+
+            const weight = parseFloat(document.getElementById('weight').value);
+            const height = parseFloat(document.getElementById('height').value);
+            const gender = document.getElementById('gender').value;
+            const duration = parseFloat(document.getElementById('duration').value);
+            const beerVolume = parseFloat(document.getElementById('beerVolume').value) || 0;
+            const wineVolume = parseFloat(document.getElementById('wineVolume').value) || 0;
+            const spiritsVolume = parseFloat(document.getElementById('spiritsVolume').value) || 0;
+            const spiritsUnit = document.getElementById('spiritsUnit').value;
+
+            // Validierungen
+            if (!weight || !height || !duration) {
+                showError("Bitte füllen Sie alle Pflichtfelder aus (Gewicht, Größe, Dauer).");
+                return;
+            }
+            if (weight < 30 || weight > 200 || height < 100 || height > 250) {
+                showError("Bitte geben Sie realistische Werte für Gewicht und Größe ein.");
+                return;
+            }
+            if (duration <= 0) {
+                showError("Bitte geben Sie eine Dauer größer als 0 an.");
+                return;
+            }
+            if (beerVolume === 0 && wineVolume === 0 && spiritsVolume === 0) {
+                showError("Bitte geben Sie mindestens eine Alkoholmenge ein.");
+                return;
+            }
+            if (beerVolume > 20 || wineVolume > 20 || spiritsVolume > 20) {
+                showError("Bitte geben Sie realistische Werte für die konsumierte Alkoholmenge an.");
+                return;
+            }
+
+            const alcoholGrams = calculateAlcoholGrams(beerVolume, wineVolume, spiritsVolume, spiritsUnit);
+            const distributionFactor = calculateDistributionFactor(weight, height, gender);
+
+            // Theoretische maximale BAK
+            let bak = alcoholGrams / (weight * distributionFactor);
+            bak -= bak * 0.15; // Abzug des Resorptionsdefizits
+
+            // Wir betrachten nun den Wert zur angegebenen Dauer als finalen Punkt
+            // (vereinfachtes Modell: linearer Anstieg von 0 auf bak innerhalb der Dauer)
+            const bakAtDuration = bak;
+
+            // Ergebnis anzeigen (maximale BAK-Anzeige wurde entfernt, nur nach der Dauer)
             const resultDiv = document.getElementById('result');
             resultDiv.innerHTML = `
                 <h2>Ergebnis:</h2>
-                <p>Ihre berechnete maximale Blutalkoholkonzentration beträgt: ${maxBak.toFixed(2)} ‰</p>
-                <p>Nach ${duration} Stunden beträgt Ihre Blutalkoholkonzentration: ${bakData[Math.floor(duration * 2)].toFixed(2)} ‰</p>
+                <p>Nach ${duration} Stunden beträgt Ihre Blutalkoholkonzentration: ${bakAtDuration.toFixed(2)} ‰</p>
                 <p><strong>Wichtiger Hinweis:</strong> Diese Berechnung dient nur zur Orientierung und ersetzt keine medizinische oder rechtliche Beurteilung. Die tatsächliche Blutalkoholkonzentration kann individuell abweichen.</p>
             `;
-            
-            // Erstellen oder Aktualisieren des Diagramms
+
+            // Diagramm erzeugen
+            const { timeLabels, bakData } = calculateBAKData(duration, bakAtDuration);
+
             if (bakChart) {
                 bakChart.destroy();
             }
-            
+
             const ctx = document.getElementById('bakChart').getContext('2d');
             bakChart = new Chart(ctx, {
                 type: 'line',
@@ -288,7 +351,8 @@
                         label: 'Blutalkoholkonzentration (‰)',
                         data: bakData,
                         borderColor: 'rgb(75, 192, 192)',
-                        tension: 0.1
+                        tension: 0.1,
+                        fill: false
                     }]
                 },
                 options: {
