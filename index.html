@@ -203,5 +203,121 @@
             <canvas id="bakChart"></canvas>
         </div>
     </div>
+
+    <script>
+        let bakChart;
+
+        document.getElementById('alcoholForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const weight = parseFloat(document.getElementById('weight').value);
+            const height = parseFloat(document.getElementById('height').value);
+            const gender = document.getElementById('gender').value;
+            const duration = parseFloat(document.getElementById('duration').value);
+            const beerVolume = parseFloat(document.getElementById('beerVolume').value) || 0;
+            const wineVolume = parseFloat(document.getElementById('wineVolume').value) || 0;
+            const spiritsVolume = parseFloat(document.getElementById('spiritsVolume').value) || 0;
+            const spiritsUnit = document.getElementById('spiritsUnit').value;
+            
+            // Überprüfen, ob mindestens eine Alkoholart eingegeben wurde
+            if (beerVolume === 0 && wineVolume === 0 && spiritsVolume === 0) {
+                alert("Bitte geben Sie mindestens eine Alkoholart ein.");
+                return;
+            }
+
+            // Alkoholgehalt in g/100ml
+            const beerAlcohol = 5;
+            const wineAlcohol = 12;
+            const spiritsAlcohol = 40;
+            
+            // Konvertiere Spirituosenmenge in Liter
+            let spiritsLiters;
+            switch(spiritsUnit) {
+                case 'l':
+                    spiritsLiters = spiritsVolume;
+                    break;
+                case 'cl':
+                    spiritsLiters = spiritsVolume / 100;
+                    break;
+                case 'ml':
+                    spiritsLiters = spiritsVolume / 1000;
+                    break;
+            }
+
+            // Berechnung der Alkoholmenge in Gramm
+            const alcoholGrams = (beerVolume * 1000 * beerAlcohol / 100 * 0.8) +
+                                 (wineVolume * 1000 * wineAlcohol / 100 * 0.8) +
+                                 (spiritsLiters * 1000 * spiritsAlcohol / 100 * 0.8);
+            
+            // Berechnung des Reduktionsfaktors nach Seidl et al.
+            let r;
+            if (gender === 'male') {
+                r = 0.31608 - 0.004821 * weight + 0.004432 * height;
+            } else {
+                r = 0.31223 - 0.006446 * weight + 0.004466 * height;
+            }
+            
+            // Berechnung der theoretischen BAK
+            let maxBak = alcoholGrams / (weight * r);
+            
+            // Abzug des Resorptionsdefizits (15%)
+            maxBak -= maxBak * 0.15;
+            
+            // Berechnung des BAK-Verlaufs
+            const bakData = [];
+            const timeLabels = [];
+            for (let hour = 0; hour <= duration + 12; hour += 0.5) {
+                let bak = maxBak - (hour * 0.15);
+                bak = Math.max(0, bak);
+                bakData.push(bak);
+                timeLabels.push(hour);
+            }
+            
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = `
+                <h2>Ergebnis:</h2>
+                <p>Ihre berechnete maximale Blutalkoholkonzentration beträgt: ${maxBak.toFixed(2)} ‰</p>
+                <p>Nach ${duration} Stunden beträgt Ihre Blutalkoholkonzentration: ${bakData[Math.floor(duration * 2)].toFixed(2)} ‰</p>
+                <p><strong>Wichtiger Hinweis:</strong> Diese Berechnung dient nur zur Orientierung und ersetzt keine medizinische oder rechtliche Beurteilung. Die tatsächliche Blutalkoholkonzentration kann individuell abweichen.</p>
+            `;
+            
+            // Erstellen oder Aktualisieren des Diagramms
+            if (bakChart) {
+                bakChart.destroy();
+            }
+            
+            const ctx = document.getElementById('bakChart').getContext('2d');
+            bakChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: timeLabels,
+                    datasets: [{
+                        label: 'Blutalkoholkonzentration (‰)',
+                        data: bakData,
+                        borderColor: 'rgb(75, 192, 192)',
+                        tension: 0.1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Zeit (Stunden)'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'BAK (‰)'
+                            },
+                            min: 0
+                        }
+                    }
+                }
+            });
+        });
+    </script>
 </body>
 </html>
