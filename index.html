@@ -11,8 +11,23 @@
             line-height: 1.6;
             margin: 0;
             padding: 20px;
-            background-color: #ffffe0; /* Hellgelb */
+            background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+            background-size: 400% 400%;
+            animation: gradientAnimation 15s ease infinite;
         }
+
+        @keyframes gradientAnimation {
+            0% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
         .container {
             max-width: 800px;
             margin: 0 auto;
@@ -21,22 +36,27 @@
             border-radius: 5px;
             box-shadow: 0 0 10px rgba(0,0,0,0.1);
         }
+
         h1 {
             text-align: center;
             color: #00008b; /* Dunkelblau */
         }
+
         .form-group {
             margin-bottom: 15px;
         }
+
         .form-group label {
             display: block;
             margin-bottom: 5px;
             font-weight: bold;
         }
+
         .input-group {
             display: flex;
             align-items: center;
         }
+
         .input-group input {
             flex-grow: 1;
             margin-right: 10px;
@@ -44,21 +64,37 @@
             border: 1px solid #ddd;
             border-radius: 4px;
             font-size: 1.2em;
+            transition: transform 0.3s ease, border-color 0.3s ease;
         }
+
+        .input-group input:focus {
+            transform: scale(1.05);
+            border-color: #4CAF50;
+        }
+
         .input-group .unit {
             min-width: 60px;
             text-align: left;
         }
+
         .input-group select {
             padding: 12px;
             border: 1px solid #ddd;
             border-radius: 4px;
             background-color: white;
             font-size: 1.2em;
+            transition: transform 0.3s ease, border-color 0.3s ease;
         }
+
+        .input-group select:focus {
+            transform: scale(1.05);
+            border-color: #4CAF50;
+        }
+
         select#gender {
             width: 100%;
         }
+
         button {
             display: block;
             width: 100%;
@@ -70,19 +106,24 @@
             cursor: pointer;
             font-size: 1.2em;
             margin-top: 20px;
+            transition: transform 0.3s ease;
         }
+
         button:hover {
-            background-color: #45a049;
+            transform: scale(1.05);
         }
+
         #result {
             margin-top: 20px;
             padding: 10px;
             background-color: #e7f3fe;
             border-radius: 4px;
         }
+
         #chartContainer {
             margin-top: 20px;
         }
+
         #errorMessages {
             margin-top: 20px;
             padding: 10px;
@@ -93,8 +134,36 @@
             font-weight: bold;
             display: none;
         }
+
         canvas {
             background-color: #ffffe0; /* Hellgelb */
+        }
+
+        #loadingSpinner {
+            display: none;
+            justify-content: center;
+            align-items: center;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.8);
+            z-index: 1000;
+        }
+
+        .spinner {
+            border: 8px solid #f3f3f3;
+            border-top: 8px solid #4CAF50;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 2s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
     </style>
 </head>
@@ -173,6 +242,10 @@
         </div>
     </div>
 
+    <div id="loadingSpinner">
+        <div class="spinner"></div>
+    </div>
+
     <script>
         let bakChart;
 
@@ -228,6 +301,9 @@
         document.getElementById('alcoholForm').addEventListener('submit', function(e) {
             e.preventDefault();
 
+            const loadingSpinner = document.getElementById('loadingSpinner');
+            loadingSpinner.style.display = 'flex';
+
             const weight = parseFloat(document.getElementById('weight').value);
             const height = parseFloat(document.getElementById('height').value);
             const gender = document.getElementById('gender').value;
@@ -239,6 +315,7 @@
 
             if (!weight || !height || !duration) {
                 document.getElementById('errorMessages').textContent = "Bitte alle Felder ausfüllen.";
+                loadingSpinner.style.display = 'none';
                 return;
             }
 
@@ -266,11 +343,18 @@
                         label: 'Blutalkoholkonzentration (‰)',
                         data: bakData,
                         borderColor: 'rgb(75, 192, 192)',
-                        tension: 0.1
+                        tension: 0.1,
+                        fill: false,
+                        pointRadius: 0,
+                        borderWidth: 2
                     }]
                 },
                 options: {
                     responsive: true,
+                    animation: {
+                        duration: 2000,
+                        easing: 'easeInOutQuad'
+                    },
                     scales: {
                         x: {
                             title: {
@@ -288,6 +372,8 @@
                     }
                 }
             });
+
+            loadingSpinner.style.display = 'none';
         });
     </script>
 </body>
