@@ -281,8 +281,17 @@
         }
 
         function calculateBAK(alcoholGrams, weight, distributionFactor, duration) {
-            let bak = alcoholGrams / (weight * distributionFactor);
-            bak -= bak * 0.15; // Resorptionsdefizit
+             // Schritt 1: BAK berechnen
+        let bak = alcoholGrams / (weight * distributionFactor);
+
+        // Schritt 2: Resorptionsdefizit abziehen (15%)
+         bak -= bak * 0.15;
+
+       // Schritt 3: Alkoholabbau pro Stunde abziehen (0.15 ‰ pro Stunde)
+        bak -= 0.15 * duration;
+
+      // Schritt 4: Sicherheitsprüfung (BAK darf nicht negativ sein)
+        bak = bak > 0 ? bak : 0;
 
             const bakData = [];
             const timeLabels = [];
