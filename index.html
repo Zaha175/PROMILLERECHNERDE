@@ -1,389 +1,963 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="ro" class="dark">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Promillerechner mit Diagramm</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            line-height: 1.6;
-            margin: 0;
-            padding: 20px;
-            background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
-            background-size: 400% 400%;
-            animation: gradientAnimation 15s ease infinite;
-        }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Promille & Konsum Suite — Deutsch & Română</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    :root {
+      --bg-page: #f8fafc;
+      --bg-card: #ffffff;
+      --bg-subtle: #f1f5f9;
+      --bg-input: #f8fafc;
+      --text-main: #0f172a;
+      --text-muted: #475569;
+      --border-color: #cbd5e1;
+      --accent-blue: #0284c7;
+      --accent-green: #059669;
+      --accent-rose: #e11d48;
+      --shadow: 0 2px 8px rgba(15, 23, 42, 0.06);
+    }
 
-        @keyframes gradientAnimation {
-            0% {
-                background-position: 0% 50%;
-            }
-            50% {
-                background-position: 100% 50%;
-            }
-            100% {
-                background-position: 0% 50%;
-            }
-        }
+    html.dark {
+      --bg-page: #0b1120;
+      --bg-card: #111827;
+      --bg-subtle: #1e293b;
+      --bg-input: #0f172a;
+      --text-main: #f1f5f9;
+      --text-muted: #94a3b8;
+      --border-color: #334155;
+      --accent-blue: #38bdf8;
+      --accent-green: #34d399;
+      --accent-rose: #fb7185;
+      --shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+    }
 
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            background-color: #ffffe0; /* Hellgelb */
-            padding: 20px;
-            border-radius: 5px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-        }
+    * {
+      box-sizing: border-box;
+    }
 
-        h1 {
-            text-align: center;
-            color: #00008b; /* Dunkelblau */
-        }
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg-page);
+      color: var(--text-main);
+      line-height: 1.55;
+      transition: background-color 0.2s ease, color 0.2s ease;
+    }
 
-        .form-group {
-            margin-bottom: 15px;
-        }
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background-color: var(--bg-card);
+      border-bottom: 1px solid var(--border-color);
+      padding: 12px 24px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
 
-        .form-group label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
-        }
+    .brand {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--text-main);
+      text-decoration: none;
+    }
 
-        .input-group {
-            display: flex;
-            align-items: center;
-        }
+    .controls-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+    }
 
-        .input-group input {
-            flex-grow: 1;
-            margin-right: 10px;
-            padding: 12px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 1.2em;
-            transition: transform 0.3s ease, border-color 0.3s ease;
-        }
+    .btn-group {
+      display: inline-flex;
+      background: var(--bg-subtle);
+      padding: 3px;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+    }
 
-        .input-group input:focus {
-            transform: scale(1.05);
-            border-color: #4CAF50;
-        }
+    .btn-tab {
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      font-size: 0.82rem;
+      font-weight: 600;
+      padding: 6px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
 
-        .input-group .unit {
-            min-width: 60px;
-            text-align: left;
-        }
+    .btn-tab.active {
+      background: var(--bg-card);
+      color: var(--text-main);
+      box-shadow: 0 1px 2px rgba(0,0,0,0.12);
+    }
 
-        .input-group select {
-            padding: 12px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            background-color: white;
-            font-size: 1.2em;
-            transition: transform 0.3s ease, border-color 0.3s ease;
-        }
+    .btn-action {
+      border: 1px solid var(--border-color);
+      background: var(--bg-subtle);
+      color: var(--text-main);
+      font-size: 0.82rem;
+      font-weight: 600;
+      padding: 7px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
 
-        .input-group select:focus {
-            transform: scale(1.05);
-            border-color: #4CAF50;
-        }
+    .btn-action:hover {
+      opacity: 0.9;
+    }
 
-        select#gender {
-            width: 100%;
-        }
+    .container {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 28px 18px 60px;
+    }
 
-        button {
-            display: block;
-            width: 100%;
-            padding: 14px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 1.2em;
-            margin-top: 20px;
-            transition: transform 0.3s ease;
-        }
+    .hero {
+      margin-bottom: 24px;
+      padding-bottom: 18px;
+      border-bottom: 1px solid var(--border-color);
+    }
 
-        button:hover {
-            transform: scale(1.05);
-        }
+    .hero h1 {
+      margin: 0 0 8px 0;
+      font-size: 1.75rem;
+    }
 
-        #result {
-            margin-top: 20px;
-            padding: 10px;
-            background-color: #e7f3fe;
-            border-radius: 4px;
-        }
+    .hero p {
+      margin: 0;
+      color: var(--text-muted);
+      font-size: 0.95rem;
+    }
 
-        #chartContainer {
-            margin-top: 20px;
-        }
+    .app-section {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 28px;
+      box-shadow: var(--shadow);
+    }
 
-        #errorMessages {
-            margin-top: 20px;
-            padding: 10px;
-            background-color: #ffe6e6;
-            border: 1px solid #ffcccc;
-            border-radius: 4px;
-            color: #b30000;
-            font-weight: bold;
-            display: none;
-        }
+    .app-header {
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 14px;
+      margin-bottom: 20px;
+    }
 
-        canvas {
-            background-color: #ffffe0; /* Hellgelb */
-        }
+    .app-header h2 {
+      margin: 4px 0 6px 0;
+      font-size: 1.35rem;
+    }
 
-        #loadingSpinner {
-            display: none;
-            justify-content: center;
-            align-items: center;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(255, 255, 255, 0.8);
-            z-index: 1000;
-        }
+    .app-header p {
+      margin: 0;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
 
-        .spinner {
-            border: 8px solid #f3f3f3;
-            border-top: 8px solid #4CAF50;
-            border-radius: 50%;
-            width: 50px;
-            height: 50px;
-            animation: spin 2s linear infinite;
-        }
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1.35fr;
+      gap: 24px;
+      align-items: start;
+    }
 
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-    </style>
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+
+    @media (max-width: 860px) {
+      .grid-2, .grid-3 {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .form-group {
+      margin-bottom: 14px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 0.82rem;
+      font-weight: 600;
+      margin-bottom: 5px;
+      color: var(--text-main);
+    }
+
+    .hint {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      margin: 0 0 6px 0;
+    }
+
+    .input-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    input[type="number"], input[type="text"], select {
+      width: 100%;
+      padding: 10px 12px;
+      font-size: 0.95rem;
+      background: var(--bg-input);
+      color: var(--text-main);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      font-family: monospace;
+    }
+
+    .unit-tag {
+      padding: 10px 12px;
+      background: var(--bg-subtle);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      white-space: nowrap;
+    }
+
+    .submit-btn {
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #ffffff;
+      background-color: #0284c7;
+      cursor: pointer;
+      margin-top: 8px;
+    }
+
+    .submit-btn.green {
+      background-color: #059669;
+    }
+
+    .result-box {
+      background: var(--bg-subtle);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 16px;
+      margin-bottom: 18px;
+    }
+
+    .cards-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin: 12px 0;
+    }
+
+    @media (max-width: 600px) {
+      .cards-3 {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .stat-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 12px;
+    }
+
+    .stat-card .label {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .stat-card .val {
+      font-size: 1.25rem;
+      font-weight: 700;
+      font-family: monospace;
+      margin-top: 4px;
+    }
+
+    .chart-box {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 14px;
+      height: 320px;
+      position: relative;
+    }
+
+    .phase-card {
+      background: var(--bg-subtle);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 16px;
+    }
+
+    .phase-card h3 {
+      margin: 0 0 6px 0;
+      font-size: 1rem;
+    }
+
+    .note {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      margin-top: 12px;
+      border-top: 1px solid var(--border-color);
+      padding-top: 10px;
+    }
+
+    @media print {
+      .topbar {
+        display: none !important;
+      }
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Promillerechner mit Diagramm</h1>
-        <form id="alcoholForm">
-            <div class="form-group">
-                <label for="weight">Gewicht</label>
-                <div class="input-group">
-                    <input type="number" id="weight" required min="30" max="200">
-                    <span class="unit">kg</span>
-                </div>
-            </div>
+  <header class="topbar">
+    <a href="#" class="brand" id="ui-brand">Promille & Konsum Suite</a>
+    <div class="controls-row">
+      <div class="btn-group">
+        <button type="button" class="btn-tab active" id="tab-all" onclick="setView('all')">Alle 3 Apps</button>
+        <button type="button" class="btn-tab" id="tab-1" onclick="setView('1')">1. Rückrechner</button>
+        <button type="button" class="btn-tab" id="tab-2" onclick="setView('2')">2. Promillerechner</button>
+        <button type="button" class="btn-tab" id="tab-3" onclick="setView('3')">3. Konsumverlauf</button>
+      </div>
 
-            <div class="form-group">
-                <label for="height">Größe</label>
-                <div class="input-group">
-                    <input type="number" id="height" required min="100" max="250">
-                    <span class="unit">cm</span>
-                </div>
-            </div>
+      <div class="btn-group">
+        <button type="button" class="btn-tab" id="lang-de" onclick="setLanguage('de')">Deutsch (DE)</button>
+        <button type="button" class="btn-tab" id="lang-ro" onclick="setLanguage('ro')">Română (RO)</button>
+      </div>
 
-            <div class="form-group">
-                <label for="gender">Geschlecht</label>
-                <select id="gender" required>
-                    <option value="male">Männlich</option>
-                    <option value="female">Weiblich</option>
-                </select>
-            </div>
+      <button type="button" class="btn-action" id="theme-btn" onclick="toggleTheme()">🌙 Dark / ☀️ Light</button>
+      <button type="button" class="btn-action" onclick="window.print()">🖨️ Print</button>
+    </div>
+  </header>
 
-            <div class="form-group">
-                <label for="duration">Dauer des Konsums</label>
-                <div class="input-group">
-                    <input type="number" id="duration" required min="0" step="0.5">
-                    <span class="unit">Stunden</span>
-                </div>
-            </div>
+  <main class="container">
+    <div class="hero">
+      <h1 id="ui-hero-title">Blutalkohol-, Rückrechnungs- & Konsumverlaufs-Rechner</h1>
+      <p id="ui-hero-sub">Zweisprachige Analyse-Suite (Deutsch & Română) mit augenschonendem Dark Mode.</p>
+    </div>
 
-            <div class="form-group">
-                <label for="beerVolume">Bier</label>
-                <div class="input-group">
-                    <input type="number" id="beerVolume" min="0" step="0.1">
-                    <span class="unit">Liter</span>
-                </div>
-            </div>
+    <!-- APP 1: REVERSE CALCULATOR -->
+    <section class="app-section" id="sec-1">
+      <div class="app-header">
+        <div style="font-size:0.75rem;color:var(--text-muted)">01 · Widmark / Watson</div>
+        <h2 id="ui-app1-title">Alkoholkonsumrechner mit Diagramm (Rückrechnung)</h2>
+        <p id="ui-app1-sub">Berechnet rückwärts aus der erreichten Promillezahl (‰) und der Trinkdauer die erforderliche Trinkmenge.</p>
+      </div>
 
-            <div class="form-group">
-                <label for="wineVolume">Wein</label>
-                <div class="input-group">
-                    <input type="number" id="wineVolume" min="0" step="0.1">
-                    <span class="unit">Liter</span>
-                </div>
+      <div class="grid-2">
+        <form id="form-app1" onsubmit="event.preventDefault(); updateApp1();">
+          <div class="form-group">
+            <label id="lbl-w1">Gewicht</label>
+            <div class="input-row">
+              <input type="number" id="w1" min="30" max="200" value="80" oninput="syncBody(this.value, 'weight')" required />
+              <span class="unit-tag">kg</span>
             </div>
-
-            <div class="form-group">
-                <label for="spiritsVolume">Spirituosen</label>
-                <div class="input-group">
-                    <input type="number" id="spiritsVolume" min="0" step="0.001">
-                    <select id="spiritsUnit">
-                        <option value="l">Liter</option>
-                        <option value="cl">Centiliter</option>
-                        <option value="ml">Milliliter</option>
-                    </select>
-                </div>
+          </div>
+          <div class="form-group">
+            <label id="lbl-h1">Größe</label>
+            <div class="input-row">
+              <input type="number" id="h1" min="100" max="250" value="180" oninput="syncBody(this.value, 'height')" required />
+              <span class="unit-tag">cm</span>
             </div>
-
-            <button type="submit">Berechnen</button>
+          </div>
+          <div class="form-group">
+            <label id="lbl-g1">Geschlecht</label>
+            <select id="g1" onchange="syncBody(this.value, 'gender')">
+              <option value="male" id="opt-m1" selected>Männlich</option>
+              <option value="female" id="opt-f1" >Weiblich</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label id="lbl-d1">Dauer des Konsums</label>
+            <p class="hint" id="hint-d1">Konsumbeginn bis Blutabgabe! Beispiel: 17:00 Uhr bis 24:00 Uhr = 7 Stunden</p>
+            <div class="input-row">
+              <input type="number" id="d1" min="0" step="0.5" value="7" oninput="syncBody(this.value, 'duration')" required />
+              <span class="unit-tag" id="unit-h1">Stunden</span>
+            </div>
+          </div>
+          <div class="form-group">
+            <label id="lbl-bak1">Erreichte Promille? Wie hoch war die Promille?</label>
+            <div class="input-row">
+              <input type="number" id="targetBak" min="0.01" max="5.00" step="0.01" value="1.85" oninput="updateApp1()" required />
+              <span class="unit-tag">‰</span>
+            </div>
+          </div>
+          <button type="submit" class="submit-btn" id="btn-calc1">Berechnen</button>
         </form>
-        
-        <div id="errorMessages"></div>
-        
-        <div id="result"></div>
-        <div id="chartContainer">
-            <canvas id="bakChart"></canvas>
+
+        <div>
+          <div class="result-box">
+            <div id="res1-intro" style="font-weight:600;font-size:0.92rem;"></div>
+            <div class="cards-3">
+              <div class="stat-card">
+                <div class="label" id="card-beer-lbl">Bier (5%)</div>
+                <div class="val" style="color:var(--accent-blue)" id="res1-beer">0.00 L</div>
+              </div>
+              <div class="stat-card">
+                <div class="label" id="card-wine-lbl">Wein (12%)</div>
+                <div class="val" style="color:var(--accent-rose)" id="res1-wine">0.00 L</div>
+              </div>
+              <div class="stat-card">
+                <div class="label" id="card-spirits-lbl">Spirituosen (40%)</div>
+                <div class="val" style="color:var(--accent-green)" id="res1-spirits">0.00 L</div>
+              </div>
+            </div>
+            <div class="note" id="note-1"></div>
+          </div>
+          <div class="chart-box">
+            <canvas id="chart1"></canvas>
+          </div>
         </div>
-    </div>
+      </div>
+    </section>
 
-    <div id="loadingSpinner">
-        <div class="spinner"></div>
-    </div>
+    <!-- APP 2: FORWARD PROMILLE CALCULATOR -->
+    <section class="app-section" id="sec-2">
+      <div class="app-header">
+        <div style="font-size:0.75rem;color:var(--text-muted)">02 · Promille / BAK (‰)</div>
+        <h2 id="ui-app2-title">Promillerechner mit Diagramm</h2>
+        <p id="ui-app2-sub">Berechnet die Blutalkoholkonzentration (‰) nach der angegebenen Konsumdauer anhand der getrunkenen Mengen.</p>
+      </div>
 
-    <script>
-        let bakChart;
+      <div class="grid-2">
+        <form id="form-app2" onsubmit="event.preventDefault(); updateApp2();">
+          <div class="form-group">
+            <label id="lbl-w2">Gewicht</label>
+            <div class="input-row">
+              <input type="number" id="w2" min="30" max="200" value="80" oninput="syncBody(this.value, 'weight')" required />
+              <span class="unit-tag">kg</span>
+            </div>
+          </div>
+          <div class="form-group">
+            <label id="lbl-h2">Größe</label>
+            <div class="input-row">
+              <input type="number" id="h2" min="100" max="250" value="180" oninput="syncBody(this.value, 'height')" required />
+              <span class="unit-tag">cm</span>
+            </div>
+          </div>
+          <div class="form-group">
+            <label id="lbl-g2">Geschlecht</label>
+            <select id="g2" onchange="syncBody(this.value, 'gender')">
+              <option value="male" id="opt-m2" selected>Männlich</option>
+              <option value="female" id="opt-f2" >Weiblich</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label id="lbl-d2">Dauer des Konsums</label>
+            <div class="input-row">
+              <input type="number" id="d2" min="0" step="0.5" value="7" oninput="syncBody(this.value, 'duration')" required />
+              <span class="unit-tag" id="unit-h2">Stunden</span>
+            </div>
+          </div>
+          <div class="form-group">
+            <label id="lbl-beer2">Bier (5% Vol.)</label>
+            <div class="input-row">
+              <input type="number" id="beerVolume" min="0" step="0.1" value="2.5" oninput="updateApp2()" />
+              <span class="unit-tag">Liter</span>
+            </div>
+          </div>
+          <div class="form-group">
+            <label id="lbl-wine2">Wein (12% Vol.)</label>
+            <div class="input-row">
+              <input type="number" id="wineVolume" min="0" step="0.1" value="0" oninput="updateApp2()" />
+              <span class="unit-tag">Liter</span>
+            </div>
+          </div>
+          <div class="form-group">
+            <label id="lbl-spirits2">Spirituosen (40% Vol.)</label>
+            <div class="input-row">
+              <input type="number" id="spiritsVolume" min="0" step="0.1" value="10" oninput="updateApp2()" />
+              <select id="spiritsUnit" style="width:140px" onchange="updateApp2()">
+                <option value="l">Liter</option>
+                <option value="cl" selected>Centiliter (cl)</option>
+                <option value="ml">Milliliter (ml)</option>
+              </select>
+            </div>
+          </div>
+          <button type="submit" class="submit-btn green" id="btn-calc2">Berechnen</button>
+        </form>
 
-        function calculateAlcoholGrams(beerVolume, wineVolume, spiritsVolume, spiritsUnit) {
-            const beerAlcohol = 5;
-            const wineAlcohol = 12;
-            const spiritsAlcohol = 40;
+        <div>
+          <div class="result-box">
+            <div id="res2-text" style="font-weight:700;font-size:1.1rem;color:var(--accent-green);"></div>
+            <div class="note" id="note-2"></div>
+          </div>
+          <div class="chart-box">
+            <canvas id="chart2"></canvas>
+          </div>
+        </div>
+      </div>
+    </section>
 
-            let spiritsLiters = 0;
-            switch(spiritsUnit) {
-                case 'l':
-                    spiritsLiters = spiritsVolume;
-                    break;
-                case 'cl':
-                    spiritsLiters = spiritsVolume / 100;
-                    break;
-                case 'ml':
-                    spiritsLiters = spiritsVolume / 1000;
-                    break;
-            }
+    <!-- APP 3: EVOLUTION OF ALCOHOL CONSUMPTION -->
+    <section class="app-section" id="sec-3">
+      <div class="app-header">
+        <div style="font-size:0.75rem;color:var(--text-muted)">03 · Biografische Konsumanalyse / Evoluția Consumului</div>
+        <h2 id="ui-app3-title">Entwicklung des Alkoholkonsums / Evoluția Consumului de Alcool</h2>
+        <p id="ui-app3-sub">Vergleicht den durchschnittlichen Alkoholkonsum über zwei Zeiträume und das Maximum bei seltenen Anlässen.</p>
+      </div>
 
-            return (beerVolume * 1000 * beerAlcohol / 100 * 0.8) +
-                   (wineVolume * 1000 * wineAlcohol / 100 * 0.8) +
-                   (spiritsLiters * 1000 * spiritsAlcohol / 100 * 0.8);
+      <div class="grid-3">
+        <div class="phase-card">
+          <h3 id="p1-title">Zeitraum 1 (z.B. 20–30 Jahre)</h3>
+          <p class="hint" id="p1-freq">Ein- bis zweimal im Monat!</p>
+          <div class="form-group">
+            <label id="lbl-ani1">Zeitraum 1:</label>
+            <input type="text" id="ani1" value="20-36" oninput="updateApp3()" />
+          </div>
+          <div class="form-group">
+            <label id="lbl-roBeri">Bier (0,5L):</label>
+            <input type="number" id="roBeri" min="0" value="2" oninput="updateApp3()" />
+          </div>
+          <div class="form-group">
+            <label id="lbl-roDuble">Doppelte / Schnäpse:</label>
+            <input type="number" id="roDuble" min="0" value="1" oninput="updateApp3()" />
+          </div>
+        </div>
+
+        <div class="phase-card">
+          <h3 id="p2-title">Zeitraum 2 (z.B. 30–35 Jahre)</h3>
+          <p class="hint" id="p2-freq">Durchschnitt pro Woche!</p>
+          <div class="form-group">
+            <label id="lbl-ani2">Zeitraum 2:</label>
+            <input type="text" id="ani2" value="36-40" oninput="updateApp3()" />
+          </div>
+          <div class="form-group">
+            <label id="lbl-deBeri">Bier (Ø pro Woche):</label>
+            <input type="number" id="deBeri" min="0" value="4" oninput="updateApp3()" />
+          </div>
+          <div class="form-group">
+            <label id="lbl-deDuble">Doppelte (Ø pro Woche):</label>
+            <input type="number" id="deDuble" min="0" value="3" oninput="updateApp3()" />
+          </div>
+        </div>
+
+        <div class="phase-card">
+          <h3 id="p3-title">Maximum (4–6x im Jahr)</h3>
+          <p class="hint" id="p3-freq">Maximale Alkoholmenge bei seltenen Anlässen.</p>
+          <div class="form-group">
+            <label id="lbl-maxBeri">Bier MAX (0,5L):</label>
+            <input type="number" id="maxBeri" min="0" value="8" oninput="updateApp3()" />
+          </div>
+          <div class="form-group">
+            <label id="lbl-maxDuble">Doppelte / Schnäpse MAX:</label>
+            <input type="number" id="maxDuble" min="0" value="6" oninput="updateApp3()" />
+          </div>
+        </div>
+      </div>
+
+      <div class="chart-box" style="height:360px;">
+        <canvas id="chart3"></canvas>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    let currentLang = "ro";
+    let chart1Instance = null;
+    let chart2Instance = null;
+    let chart3Instance = null;
+
+    const dict = {
+      de: {
+        brand: "Promille & Konsum Suite",
+        tabAll: "Alle 3 Apps",
+        tab1: "1. Rückrechner",
+        tab2: "2. Promillerechner",
+        tab3: "3. Konsumverlauf",
+        heroTitle: "Blutalkohol-, Rückrechnungs- & Konsumverlaufs-Rechner",
+        heroSub: "Alle drei Rechner vereint in einer zweisprachigen Anwendung (Deutsch & Română) mit augenschonendem Dark Mode.",
+        weight: "Gewicht",
+        height: "Größe",
+        gender: "Geschlecht",
+        male: "Männlich",
+        female: "Weiblich",
+        duration: "Dauer des Konsums",
+        hours: "Stunden",
+        calc: "Berechnen",
+        note: "Wichtiger Hinweis: Diese Berechnung dient nur zur Orientierung und ersetzt keine medizinische oder rechtliche Beurteilung.",
+        app1Title: "Alkoholkonsumrechner mit Diagramm (Rückrechnung)",
+        app1Sub: "Berechnet rückwärts aus der erreichten Promillezahl (‰) und der Trinkdauer die erforderliche Trinkmenge.",
+        hintD1: "Konsumbeginn bis Blutabgabe! Beispiel: Anfang: 17:00 Uhr – Blutabgabe: 24:00 Uhr = 7 Stunden",
+        bak1: "Erreichte Promille? Wie hoch war die Promille?",
+        res1Intro: (bak, dur) => `Um ungefähr ${bak} ‰ Promille nach ${dur} Stunden zu erreichen, müssten Sie ungefähr konsumieren:`,
+        chart1Label: "Alkoholmenge (g)",
+        chart1X: "Dauer (Stunden)",
+        app2Title: "Promillerechner mit Diagramm",
+        app2Sub: "Berechnet die Blutalkoholkonzentration (‰) nach der angegebenen Konsumdauer.",
+        res2Text: (dur, bak) => `Nach ${dur} Stunden beträgt Ihre Blutalkoholkonzentration: ${bak} ‰`,
+        chart2Label: "Blutalkoholkonzentration (‰)",
+        chart2X: "Zeit (Stunden)",
+        app3Title: "Entwicklung des Alkoholkonsums",
+        app3Sub: "Vergleicht den durchschnittlichen Alkoholkonsum über zwei Lebensabschnitte sowie die Maximalmenge.",
+        p1Title: "Beispiel: Zwischen 20 und 30 Jahren",
+        p1Freq: "Einmal bis zweimal im Monat!",
+        p1Lbl: "Zeitraum 1:",
+        p2Title: "Beispiel: Von 30 bis 35 Jahren",
+        p2Freq: "Zwei- bis dreimal im Monat (Ø pro Woche)!",
+        p2Lbl: "Zeitraum 2:",
+        p3Title: "Maximum",
+        p3Freq: "Maximale Alkoholmenge bei seltenen Gelegenheiten (4–6x im Jahr).",
+        beerLegend: "Bier (0,5L)",
+        shotsLegend: "Doppelte (Schnaps)",
+        yDrinks: "Anzahl der Getränke",
+        s1Suffix: "(Ø/Monat)",
+        s2Suffix: "(Ø/Woche)",
+        sMax: "Maximum (4x im Jahr)"
+      },
+      ro: {
+        brand: "Promille & Consum Suite",
+        tabAll: "Toate cele 3 aplicații",
+        tab1: "1. Calcul Invers",
+        tab2: "2. Alcoolemie (‰)",
+        tab3: "3. Evoluție Consum",
+        heroTitle: "Calculator Alcoolemie, Calcul Invers & Evoluția Consumului",
+        heroSub: "Toate cele trei aplicații reunite într-o platformă bilingvă (Română & Deutsch) cu Mod Întunecat (Dark Mode) odihnitor pentru ochi.",
+        weight: "Greutate",
+        height: "Înălțime",
+        gender: "Sex",
+        male: "Masculin",
+        female: "Feminin",
+        duration: "Durata consumului",
+        hours: "Ore",
+        calc: "Calculează",
+        note: "Notă importantă: Acest calcul are doar scop orientativ și nu înlocuiește o evaluare medicală sau juridică.",
+        app1Title: "Calculator Consum de Alcool cu Grafic (Calcul Invers)",
+        app1Sub: "Calculează invers, pornind de la alcoolemia atinsă (‰) și durata consumului, cantitatea necesară de băutură.",
+        hintD1: "De la începutul consumului până la recoltarea sângelui! Exemplu: Început: 17:00 – Recoltare: 24:00 = 7 ore",
+        bak1: "Alcoolemia atinsă? Cât de mare a fost alcoolemia (‰)?",
+        res1Intro: (bak, dur) => `Pentru a atinge aproximativ ${bak} ‰ promile după ${dur} ore, ar fi trebuit să consumați aproximativ:`,
+        chart1Label: "Cantitate alcool (g)",
+        chart1X: "Durată (Ore)",
+        app2Title: "Calculator Alcoolemie (Promile) cu Grafic",
+        app2Sub: "Calculează concentrația de alcool în sânge (‰) după durata specificată.",
+        res2Text: (dur, bak) => `După ${dur} ore, concentrația dumneavoastră de alcool în sânge este: ${bak} ‰`,
+        chart2Label: "Concentrație alcool în sânge (‰)",
+        chart2X: "Timp (Ore)",
+        app3Title: "Evoluția Consumului de Alcool",
+        app3Sub: "Compară consumul mediu de alcool pe două perioade de vârstă și cantitatea maximă la ocazii rare.",
+        p1Title: "De exemplu: Între 20 și 30 de ani",
+        p1Freq: "O dată, de două ori pe lună!",
+        p1Lbl: "Perioada 1:",
+        p2Title: "De exemplu: De la 30 la 35 de ani",
+        p2Freq: "De două sau trei ori pe lună (Media pe săptămână)!",
+        p2Lbl: "Perioada 2:",
+        p3Title: "Maxim",
+        p3Freq: "Cantitatea maximă de alcool la ocazii rare (aproximativ de 4, 5, 6 ori pe an).",
+        beerLegend: "Beri (0.5L)",
+        shotsLegend: "Duble (Șnaps)",
+        yDrinks: "Număr de băuturi",
+        s1Suffix: "(Mediu/lună)",
+        s2Suffix: "(Mediu/săptămână)",
+        sMax: "Maxim (4x pe an)"
+      }
+    };
+
+    function calcDistFactor(weight, height, gender) {
+      if (gender === 'male') {
+        return 0.31608 - 0.004821 * weight + 0.004432 * height;
+      } else {
+        return 0.31223 - 0.006446 * weight + 0.004466 * height;
+      }
+    }
+
+    function syncBody(val, field) {
+      if (field === 'weight') {
+        document.getElementById('w1').value = val;
+        document.getElementById('w2').value = val;
+      } else if (field === 'height') {
+        document.getElementById('h1').value = val;
+        document.getElementById('h2').value = val;
+      } else if (field === 'gender') {
+        document.getElementById('g1').value = val;
+        document.getElementById('g2').value = val;
+      } else if (field === 'duration') {
+        document.getElementById('d1').value = val;
+        document.getElementById('d2').value = val;
+      }
+      updateApp1();
+      updateApp2();
+    }
+
+    function getChartColors() {
+      const isDark = document.documentElement.classList.contains('dark');
+      return {
+        text: isDark ? '#cbd5e1' : '#334155',
+        grid: isDark ? 'rgba(148, 163, 184, 0.15)' : 'rgba(148, 163, 184, 0.3)'
+      };
+    }
+
+    function updateApp1() {
+      const t = dict[currentLang];
+      const weight = parseFloat(document.getElementById('w1').value) || 80;
+      const height = parseFloat(document.getElementById('h1').value) || 180;
+      const gender = document.getElementById('g1').value;
+      const duration = parseFloat(document.getElementById('d1').value) || 0;
+      const targetBak = parseFloat(document.getElementById('targetBak').value) || 0;
+
+      const r = calcDistFactor(weight, height, gender);
+      let alcoholGrams = (targetBak + 0.15 * duration) * (weight * r);
+      alcoholGrams /= 0.85;
+
+      const beerVol = (alcoholGrams / (5 * 0.8)) / 10;
+      const wineVol = (alcoholGrams / (12 * 0.8)) / 10;
+      const spiritsVol = (alcoholGrams / (40 * 0.8)) / 10;
+
+      document.getElementById('res1-intro').textContent = t.res1Intro(targetBak.toFixed(2), duration);
+      document.getElementById('res1-beer').textContent = beerVol.toFixed(2) + ' L';
+      document.getElementById('res1-wine').textContent = wineVol.toFixed(2) + ' L';
+      document.getElementById('res1-spirits').textContent = spiritsVol.toFixed(2) + ' L';
+      document.getElementById('note-1').textContent = t.note;
+
+      const labels = [];
+      const dataPts = [];
+      const steps = 10;
+      for (let i = 0; i <= steps; i++) {
+        labels.push(((duration / steps) * i).toFixed(1));
+        dataPts.push(((alcoholGrams / steps) * i).toFixed(1));
+      }
+
+      const colors = getChartColors();
+      if (chart1Instance) chart1Instance.destroy();
+      const ctx1 = document.getElementById('chart1').getContext('2d');
+      chart1Instance = new Chart(ctx1, {
+        type: 'line',
+        data: {
+          labels,
+          datasets: [{
+            label: t.chart1Label,
+            data: dataPts,
+            borderColor: '#38bdf8',
+            backgroundColor: 'rgba(56, 189, 248, 0.15)',
+            fill: true,
+            tension: 0.3,
+            borderWidth: 2.5
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            x: { title: { display: true, text: t.chart1X, color: colors.text }, ticks: { color: colors.text }, grid: { color: colors.grid } },
+            y: { beginAtZero: true, title: { display: true, text: t.chart1Label, color: colors.text }, ticks: { color: colors.text }, grid: { color: colors.grid } }
+          },
+          plugins: { legend: { labels: { color: colors.text } } }
         }
+      });
+    }
 
-        function calculateDistributionFactor(weight, height, gender) {
-            if (gender === 'male') {
-                return 0.31608 - 0.004821 * weight + 0.004432 * height;
-            } else {
-                return 0.31223 - 0.006446 * weight + 0.004466 * height;
-            }
+    function updateApp2() {
+      const t = dict[currentLang];
+      const weight = parseFloat(document.getElementById('w2').value) || 80;
+      const height = parseFloat(document.getElementById('h2').value) || 180;
+      const gender = document.getElementById('g2').value;
+      const duration = parseFloat(document.getElementById('d2').value) || 0;
+      const beerVol = parseFloat(document.getElementById('beerVolume').value) || 0;
+      const wineVol = parseFloat(document.getElementById('wineVolume').value) || 0;
+      const spiritsVol = parseFloat(document.getElementById('spiritsVolume').value) || 0;
+      const spiritsUnit = document.getElementById('spiritsUnit').value;
+
+      let spiritsLiters = spiritsVol;
+      if (spiritsUnit === 'cl') spiritsLiters = spiritsVol / 100;
+      if (spiritsUnit === 'ml') spiritsLiters = spiritsVol / 1000;
+
+      const alcoholGrams =
+        (beerVol * 1000 * 5 / 100 * 0.8) +
+        (wineVol * 1000 * 12 / 100 * 0.8) +
+        (spiritsLiters * 1000 * 40 / 100 * 0.8);
+
+      const r = calcDistFactor(weight, height, gender);
+      let bak = alcoholGrams / (weight * r);
+      bak -= bak * 0.15;
+      bak -= 0.15 * duration;
+      bak = bak > 0 ? bak : 0;
+
+      document.getElementById('res2-text').textContent = t.res2Text(duration, bak.toFixed(2));
+      document.getElementById('note-2').textContent = t.note;
+
+      const labels = [];
+      const dataPts = [];
+      const step = 0.5;
+      if (duration <= 0) {
+        labels.push('0');
+        dataPts.push(bak);
+      } else {
+        for (let h = 0; h <= duration + 0.001; h += step) {
+          const clamped = Math.min(duration, Math.round(h * 10) / 10);
+          labels.push(clamped.toFixed(1));
+          dataPts.push((bak * (clamped / duration)).toFixed(2));
         }
+      }
 
-        function calculateBAK(alcoholGrams, weight, distributionFactor, duration) {
-             // Schritt 1: BAK berechnen
-        let bak = alcoholGrams / (weight * distributionFactor);
-
-        // Schritt 2: Resorptionsdefizit abziehen (15%)
-         bak -= bak * 0.15;
-
-       // Schritt 3: Alkoholabbau pro Stunde abziehen (0.15 ‰ pro Stunde)
-        bak -= 0.15 * duration;
-
-      // Schritt 4: Sicherheitsprüfung (BAK darf nicht negativ sein)
-        bak = bak > 0 ? bak : 0;
-
-            const bakData = [];
-            const timeLabels = [];
-            const step = 0.5;
-
-            for (let hour = 0; hour <= duration; hour += step) {
-                let bakAtTime = bak * (hour / duration); // Linearer Anstieg
-                bakAtTime = Math.min(bak, bakAtTime); // Begrenzung auf maximalen Wert
-                bakData.push(bakAtTime);
-                timeLabels.push(hour);
-            }
-
-            return { bak, bakData, timeLabels };
+      const colors = getChartColors();
+      if (chart2Instance) chart2Instance.destroy();
+      const ctx2 = document.getElementById('chart2').getContext('2d');
+      chart2Instance = new Chart(ctx2, {
+        type: 'line',
+        data: {
+          labels,
+          datasets: [{
+            label: t.chart2Label,
+            data: dataPts,
+            borderColor: '#34d399',
+            backgroundColor: 'rgba(52, 211, 153, 0.15)',
+            fill: true,
+            tension: 0.2,
+            borderWidth: 2.5
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            x: { title: { display: true, text: t.chart2X, color: colors.text }, ticks: { color: colors.text }, grid: { color: colors.grid } },
+            y: { beginAtZero: true, title: { display: true, text: t.chart2Label, color: colors.text }, ticks: { color: colors.text }, grid: { color: colors.grid } }
+          },
+          plugins: { legend: { labels: { color: colors.text } } }
         }
+      });
+    }
 
-        document.getElementById('alcoholForm').addEventListener('submit', function(e) {
-            e.preventDefault();
+    function updateApp3() {
+      const t = dict[currentLang];
+      const ani1 = document.getElementById('ani1').value || '20-36';
+      const ani2 = document.getElementById('ani2').value || '36-40';
+      const roBeri = Math.max(0, parseInt(document.getElementById('roBeri').value) || 0);
+      const deBeri = Math.max(0, parseInt(document.getElementById('deBeri').value) || 0);
+      const maxBeri = Math.max(0, parseInt(document.getElementById('maxBeri').value) || 0);
+      const roDuble = Math.max(0, parseInt(document.getElementById('roDuble').value) || 0);
+      const deDuble = Math.max(0, parseInt(document.getElementById('deDuble').value) || 0);
+      const maxDuble = Math.max(0, parseInt(document.getElementById('maxDuble').value) || 0);
 
-            const loadingSpinner = document.getElementById('loadingSpinner');
-            loadingSpinner.style.display = 'flex';
-
-            const weight = parseFloat(document.getElementById('weight').value);
-            const height = parseFloat(document.getElementById('height').value);
-            const gender = document.getElementById('gender').value;
-            const duration = parseFloat(document.getElementById('duration').value);
-            const beerVolume = parseFloat(document.getElementById('beerVolume').value) || 0;
-            const wineVolume = parseFloat(document.getElementById('wineVolume').value) || 0;
-            const spiritsVolume = parseFloat(document.getElementById('spiritsVolume').value) || 0;
-            const spiritsUnit = document.getElementById('spiritsUnit').value;
-
-            if (!weight || !height || !duration) {
-                document.getElementById('errorMessages').textContent = "Bitte alle Felder ausfüllen.";
-                loadingSpinner.style.display = 'none';
-                return;
+      const colors = getChartColors();
+      if (chart3Instance) chart3Instance.destroy();
+      const ctx3 = document.getElementById('chart3').getContext('2d');
+      chart3Instance = new Chart(ctx3, {
+        type: 'bar',
+        data: {
+          labels: [
+            `${ani1} ${t.s1Suffix}`,
+            `${ani2} ${t.s2Suffix}`,
+            t.sMax
+          ],
+          datasets: [
+            {
+              label: t.beerLegend,
+              data: [roBeri, deBeri, maxBeri],
+              backgroundColor: 'rgba(56, 189, 248, 0.75)',
+              borderColor: '#0284c7',
+              borderWidth: 2
+            },
+            {
+              label: t.shotsLegend,
+              data: [roDuble, deDuble, maxDuble],
+              backgroundColor: 'rgba(251, 113, 133, 0.75)',
+              borderColor: '#e11d48',
+              borderWidth: 2
             }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            x: { ticks: { color: colors.text }, grid: { color: colors.grid } },
+            y: { beginAtZero: true, title: { display: true, text: t.yDrinks, color: colors.text }, ticks: { color: colors.text }, grid: { color: colors.grid } }
+          },
+          plugins: { legend: { position: 'bottom', labels: { color: colors.text } } }
+        }
+      });
+    }
 
-            const alcoholGrams = calculateAlcoholGrams(beerVolume, wineVolume, spiritsVolume, spiritsUnit);
-            const distributionFactor = calculateDistributionFactor(weight, height, gender);
+    function setLanguage(lang) {
+      currentLang = lang;
+      const t = dict[lang];
+      document.getElementById('lang-de').classList.toggle('active', lang === 'de');
+      document.getElementById('lang-ro').classList.toggle('active', lang === 'ro');
+      document.getElementById('ui-brand').textContent = t.brand;
+      document.getElementById('tab-all').textContent = t.tabAll;
+      document.getElementById('tab-1').textContent = t.tab1;
+      document.getElementById('tab-2').textContent = t.tab2;
+      document.getElementById('tab-3').textContent = t.tab3;
+      document.getElementById('ui-hero-title').textContent = t.heroTitle;
+      document.getElementById('ui-hero-sub').textContent = t.heroSub;
 
-            const { bak, bakData, timeLabels } = calculateBAK(alcoholGrams, weight, distributionFactor, duration);
+      document.getElementById('ui-app1-title').textContent = t.app1Title;
+      document.getElementById('ui-app1-sub').textContent = t.app1Sub;
+      document.getElementById('lbl-w1').textContent = t.weight;
+      document.getElementById('lbl-h1').textContent = t.height;
+      document.getElementById('lbl-g1').textContent = t.gender;
+      document.getElementById('opt-m1').textContent = t.male;
+      document.getElementById('opt-f1').textContent = t.female;
+      document.getElementById('lbl-d1').textContent = t.duration;
+      document.getElementById('hint-d1').textContent = t.hintD1;
+      document.getElementById('unit-h1').textContent = t.hours;
+      document.getElementById('lbl-bak1').textContent = t.bak1;
+      document.getElementById('btn-calc1').textContent = t.calc;
 
-            document.getElementById('result').innerHTML = `
-                <h2>Ergebnis:</h2>
-                <p>Nach ${duration} Stunden beträgt Ihre Blutalkoholkonzentration: ${bakData[bakData.length - 1].toFixed(2)} ‰</p>
-                <p><strong>Wichtiger Hinweis:</strong> Diese Berechnung dient nur zur Orientierung und ersetzt keine medizinische oder rechtliche Beurteilung. Die tatsächliche Blutalkoholkonzentration kann individuell abweichen.</p>
-            `;
+      document.getElementById('ui-app2-title').textContent = t.app2Title;
+      document.getElementById('ui-app2-sub').textContent = t.app2Sub;
+      document.getElementById('lbl-w2').textContent = t.weight;
+      document.getElementById('lbl-h2').textContent = t.height;
+      document.getElementById('lbl-g2').textContent = t.gender;
+      document.getElementById('opt-m2').textContent = t.male;
+      document.getElementById('opt-f2').textContent = t.female;
+      document.getElementById('lbl-d2').textContent = t.duration;
+      document.getElementById('unit-h2').textContent = t.hours;
+      document.getElementById('btn-calc2').textContent = t.calc;
 
-            if (bakChart) {
-                bakChart.destroy();
-            }
+      document.getElementById('ui-app3-title').textContent = t.app3Title;
+      document.getElementById('ui-app3-sub').textContent = t.app3Sub;
+      document.getElementById('p1-title').textContent = t.p1Title;
+      document.getElementById('p1-freq').textContent = t.p1Freq;
+      document.getElementById('lbl-ani1').textContent = t.p1Lbl;
+      document.getElementById('p2-title').textContent = t.p2Title;
+      document.getElementById('p2-freq').textContent = t.p2Freq;
+      document.getElementById('lbl-ani2').textContent = t.p2Lbl;
+      document.getElementById('p3-title').textContent = t.p3Title;
+      document.getElementById('p3-freq').textContent = t.p3Freq;
 
-            const ctx = document.getElementById('bakChart').getContext('2d');
-            bakChart = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: timeLabels,
-                    datasets: [{
-                        label: 'Blutalkoholkonzentration (‰)',
-                        data: bakData,
-                        borderColor: 'rgb(75, 192, 192)',
-                        tension: 0.1,
-                        fill: false,
-                        pointRadius: 0,
-                        borderWidth: 2
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    animation: {
-                        duration: 2000,
-                        easing: 'easeInOutQuad'
-                    },
-                    scales: {
-                        x: {
-                            title: {
-                                display: true,
-                                text: 'Zeit (Stunden)'
-                            }
-                        },
-                        y: {
-                            title: {
-                                display: true,
-                                text: 'BAK (‰)'
-                            },
-                            min: 0
-                        }
-                    }
-                }
-            });
+      updateApp1();
+      updateApp2();
+      updateApp3();
+    }
 
-            loadingSpinner.style.display = 'none';
-        });
-    </script>
+    function setView(view) {
+      document.getElementById('tab-all').classList.toggle('active', view === 'all');
+      document.getElementById('tab-1').classList.toggle('active', view === '1');
+      document.getElementById('tab-2').classList.toggle('active', view === '2');
+      document.getElementById('tab-3').classList.toggle('active', view === '3');
+
+      document.getElementById('sec-1').style.display = (view === 'all' || view === '1') ? 'block' : 'none';
+      document.getElementById('sec-2').style.display = (view === 'all' || view === '2') ? 'block' : 'none';
+      document.getElementById('sec-3').style.display = (view === 'all' || view === '3') ? 'block' : 'none';
+    }
+
+    function toggleTheme() {
+      document.documentElement.classList.toggle('dark');
+      updateApp1();
+      updateApp2();
+      updateApp3();
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      setLanguage(currentLang);
+    });
+  </script>
 </body>
 </html>
