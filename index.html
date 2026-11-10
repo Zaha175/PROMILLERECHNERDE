@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ro" class="dark">
+<html lang="de" class="dark">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -17,6 +17,7 @@
       --accent-blue: #0284c7;
       --accent-green: #059669;
       --accent-rose: #e11d48;
+      --accent-amber: #d97706;
       --shadow: 0 2px 8px rgba(15, 23, 42, 0.06);
     }
 
@@ -31,6 +32,7 @@
       --accent-blue: #38bdf8;
       --accent-green: #34d399;
       --accent-rose: #fb7185;
+      --accent-amber: #fbbf24;
       --shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
     }
 
@@ -112,10 +114,6 @@
       cursor: pointer;
     }
 
-    .btn-action:hover {
-      opacity: 0.9;
-    }
-
     .container {
       max-width: 1120px;
       margin: 0 auto;
@@ -165,6 +163,19 @@
       font-size: 0.9rem;
     }
 
+    .timeline-box {
+      background: var(--bg-subtle);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 16px;
+      margin-bottom: 22px;
+    }
+
+    .timeline-box h3 {
+      margin: 0 0 6px 0;
+      font-size: 0.95rem;
+    }
+
     .grid-2 {
       display: grid;
       grid-template-columns: 1fr 1.35fr;
@@ -175,8 +186,8 @@
     .grid-3 {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 16px;
-      margin-bottom: 20px;
+      gap: 14px;
+      margin-bottom: 12px;
     }
 
     @media (max-width: 860px) {
@@ -209,10 +220,10 @@
       gap: 8px;
     }
 
-    input[type="number"], input[type="text"], select {
+    input[type="number"], input[type="text"], input[type="time"], select {
       width: 100%;
-      padding: 10px 12px;
-      font-size: 0.95rem;
+      padding: 9px 11px;
+      font-size: 0.92rem;
       background: var(--bg-input);
       color: var(--text-main);
       border: 1px solid var(--border-color);
@@ -221,7 +232,7 @@
     }
 
     .unit-tag {
-      padding: 10px 12px;
+      padding: 9px 12px;
       background: var(--bg-subtle);
       border: 1px solid var(--border-color);
       border-radius: 8px;
@@ -253,7 +264,15 @@
       border: 1px solid var(--border-color);
       border-radius: 10px;
       padding: 16px;
-      margin-bottom: 18px;
+      margin-bottom: 16px;
+    }
+
+    .drive-box {
+      background: rgba(217, 119, 6, 0.12);
+      border: 1px solid var(--accent-amber);
+      border-radius: 10px;
+      padding: 16px;
+      margin-bottom: 16px;
     }
 
     .cards-3 {
@@ -348,15 +367,70 @@
   <main class="container">
     <div class="hero">
       <h1 id="ui-hero-title">Blutalkohol-, Rückrechnungs- & Konsumverlaufs-Rechner</h1>
-      <p id="ui-hero-sub">Zweisprachige Analyse-Suite (Deutsch & Română) mit augenschonendem Dark Mode.</p>
+      <p id="ui-hero-sub">Zweisprachige Analyse-Suite (Deutsch & Română) inklusive Fahrtzeit-Rückrechnung (Promille am Steuer).</p>
     </div>
 
-    <!-- APP 1: REVERSE CALCULATOR -->
+    <!-- APP 1: REVERSE CALCULATOR + DRIVING TIME -->
     <section class="app-section" id="sec-1">
       <div class="app-header">
         <div style="font-size:0.75rem;color:var(--text-muted)">01 · Widmark / Watson</div>
-        <h2 id="ui-app1-title">Alkoholkonsumrechner mit Diagramm (Rückrechnung)</h2>
-        <p id="ui-app1-sub">Berechnet rückwärts aus der erreichten Promillezahl (‰) und der Trinkdauer die erforderliche Trinkmenge.</p>
+        <h2 id="ui-app1-title">Alkoholkonsumrechner & Promille am Steuer (Rückrechnung)</h2>
+        <p id="ui-app1-sub">Berechnet rückwärts die Trinkmenge sowie die Promille zum Zeitpunkt der Fahrt (am Steuer).</p>
+      </div>
+
+      <!-- Automatic Day/Time Timeline Calculator -->
+      <div class="timeline-box">
+        <h3 id="ui-tl-title">⏱️ Automatischer Stunden- & Fahrtzeit-Rechner (Wochentag / Uhrzeit)</h3>
+        <p class="hint" id="ui-tl-sub">Wähle Tag & Uhrzeit für Trinkbeginn, Fahrt am Steuer und Blutabnahme – die Stunden werden automatisch berechnet.</p>
+        <div class="grid-3">
+          <div class="stat-card">
+            <label id="lbl-tl-start" style="font-size:0.78rem;font-weight:700;color:var(--accent-blue)">1. Trinkbeginn</label>
+            <div class="input-row" style="margin-top:6px">
+              <select id="tl-start-day" onchange="calcTimeline()">
+                <option value="0">Montag / Luni</option>
+                <option value="1">Dienstag / Marți</option>
+                <option value="2">Mittwoch / Miercuri</option>
+                <option value="3">Donnerstag / Joi</option>
+                <option value="4">Freitag / Vineri</option>
+                <option value="5" selected>Samstag / Sâmbătă</option>
+                <option value="6">Sonntag / Duminică</option>
+              </select>
+              <input type="time" id="tl-start-time" value="13:00" onchange="calcTimeline()" />
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <label id="lbl-tl-drive" style="font-size:0.78rem;font-weight:700;color:var(--accent-amber)">2. Fahrt am Steuer</label>
+            <div class="input-row" style="margin-top:6px">
+              <select id="tl-drive-day" onchange="calcTimeline()">
+                <option value="0">Montag / Luni</option>
+                <option value="1">Dienstag / Marți</option>
+                <option value="2">Mittwoch / Miercuri</option>
+                <option value="3">Donnerstag / Joi</option>
+                <option value="4">Freitag / Vineri</option>
+                <option value="5">Samstag / Sâmbătă</option>
+                <option value="6" selected>Sonntag / Duminică</option>
+              </select>
+              <input type="time" id="tl-drive-time" value="22:00" onchange="calcTimeline()" />
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <label id="lbl-tl-blood" style="font-size:0.78rem;font-weight:700;color:var(--accent-green)">3. Blutabnahme / Messung</label>
+            <div class="input-row" style="margin-top:6px">
+              <select id="tl-blood-day" onchange="calcTimeline()">
+                <option value="0" selected>Montag / Luni</option>
+                <option value="1">Dienstag / Marți</option>
+                <option value="2">Mittwoch / Miercuri</option>
+                <option value="3">Donnerstag / Joi</option>
+                <option value="4">Freitag / Vineri</option>
+                <option value="5">Samstag / Sâmbătă</option>
+                <option value="6">Sonntag / Duminică</option>
+              </select>
+              <input type="time" id="tl-blood-time" value="13:00" onchange="calcTimeline()" />
+            </div>
+          </div>
+        </div>
       </div>
 
       <div class="grid-2">
@@ -364,14 +438,14 @@
           <div class="form-group">
             <label id="lbl-w1">Gewicht</label>
             <div class="input-row">
-              <input type="number" id="w1" min="30" max="200" value="80" oninput="syncBody(this.value, 'weight')" required />
+              <input type="number" id="w1" min="30" max="200" value="88" oninput="syncBody(this.value, 'weight')" required />
               <span class="unit-tag">kg</span>
             </div>
           </div>
           <div class="form-group">
             <label id="lbl-h1">Größe</label>
             <div class="input-row">
-              <input type="number" id="h1" min="100" max="250" value="180" oninput="syncBody(this.value, 'height')" required />
+              <input type="number" id="h1" min="100" max="250" value="170" oninput="syncBody(this.value, 'height')" required />
               <span class="unit-tag">cm</span>
             </div>
           </div>
@@ -383,17 +457,23 @@
             </select>
           </div>
           <div class="form-group">
-            <label id="lbl-d1">Dauer des Konsums</label>
-            <p class="hint" id="hint-d1">Konsumbeginn bis Blutabgabe! Beispiel: 17:00 Uhr bis 24:00 Uhr = 7 Stunden</p>
+            <label id="lbl-d1">Gesamtdauer (Trinkbeginn bis Blutabnahme)</label>
             <div class="input-row">
-              <input type="number" id="d1" min="0" step="0.5" value="7" oninput="syncBody(this.value, 'duration')" required />
+              <input type="number" id="d1" min="0" step="0.5" value="48" oninput="updateApp1()" required />
               <span class="unit-tag" id="unit-h1">Stunden</span>
             </div>
           </div>
           <div class="form-group">
-            <label id="lbl-bak1">Erreichte Promille? Wie hoch war die Promille?</label>
+            <label id="lbl-drive1" style="color:var(--accent-amber)">Zeitpunkt der Fahrt (Stunden nach Trinkbeginn)</label>
             <div class="input-row">
-              <input type="number" id="targetBak" min="0.01" max="5.00" step="0.01" value="1.85" oninput="updateApp1()" required />
+              <input type="number" id="drive1" min="0" step="0.5" value="33" oninput="updateApp1()" required />
+              <span class="unit-tag" id="unit-hd1">Stunden</span>
+            </div>
+          </div>
+          <div class="form-group">
+            <label id="lbl-bak1">Gemessene Promille bei Blutabnahme?</label>
+            <div class="input-row">
+              <input type="number" id="targetBak" min="0.01" max="5.00" step="0.01" value="0.70" oninput="updateApp1()" required />
               <span class="unit-tag">‰</span>
             </div>
           </div>
@@ -401,6 +481,27 @@
         </form>
 
         <div>
+          <!-- Driving Time Result Box -->
+          <div class="drive-box">
+            <div id="drive-res-title" style="font-weight:700;font-size:0.95rem;color:var(--accent-amber)">🚗 Promille am Steuer (zum Fahrtzeitpunkt)</div>
+            <div class="cards-3">
+              <div class="stat-card">
+                <div class="label" id="lbl-drive-bak">Promille am Steuer</div>
+                <div class="val" style="color:var(--accent-amber)" id="res-drive-bak">2.95 ‰</div>
+              </div>
+              <div class="stat-card">
+                <div class="label" id="lbl-drive-diff">Fahrt → Blutabnahme</div>
+                <div class="val" id="res-drive-diff">15.0 h</div>
+              </div>
+              <div class="stat-card">
+                <div class="label" id="lbl-drive-elim">Abbau (0,15 ‰/h)</div>
+                <div class="val" style="color:var(--accent-green)" id="res-drive-elim">+2.25 ‰</div>
+              </div>
+            </div>
+            <div id="res-drive-formula" style="font-size:0.8rem;font-family:monospace;margin-bottom:8px;"></div>
+            <button type="button" class="btn-action" id="btn-transfer" onclick="transferToApp2()">Trinkmenge & Fahrtstunden in Rechner 2 übernehmen →</button>
+          </div>
+
           <div class="result-box">
             <div id="res1-intro" style="font-weight:600;font-size:0.92rem;"></div>
             <div class="cards-3">
@@ -439,14 +540,14 @@
           <div class="form-group">
             <label id="lbl-w2">Gewicht</label>
             <div class="input-row">
-              <input type="number" id="w2" min="30" max="200" value="80" oninput="syncBody(this.value, 'weight')" required />
+              <input type="number" id="w2" min="30" max="200" value="88" oninput="syncBody(this.value, 'weight')" required />
               <span class="unit-tag">kg</span>
             </div>
           </div>
           <div class="form-group">
             <label id="lbl-h2">Größe</label>
             <div class="input-row">
-              <input type="number" id="h2" min="100" max="250" value="180" oninput="syncBody(this.value, 'height')" required />
+              <input type="number" id="h2" min="100" max="250" value="170" oninput="syncBody(this.value, 'height')" required />
               <span class="unit-tag">cm</span>
             </div>
           </div>
@@ -458,30 +559,30 @@
             </select>
           </div>
           <div class="form-group">
-            <label id="lbl-d2">Dauer des Konsums</label>
+            <label id="lbl-d2">Dauer des Konsums (z.B. bis zur Fahrt)</label>
             <div class="input-row">
-              <input type="number" id="d2" min="0" step="0.5" value="7" oninput="syncBody(this.value, 'duration')" required />
+              <input type="number" id="d2" min="0" step="0.5" value="33" oninput="updateApp2()" required />
               <span class="unit-tag" id="unit-h2">Stunden</span>
             </div>
           </div>
           <div class="form-group">
             <label id="lbl-beer2">Bier (5% Vol.)</label>
             <div class="input-row">
-              <input type="number" id="beerVolume" min="0" step="0.1" value="2.5" oninput="updateApp2()" />
+              <input type="number" id="beerVolume" min="0" step="0.01" value="13.19" oninput="updateApp2()" />
               <span class="unit-tag">Liter</span>
             </div>
           </div>
           <div class="form-group">
             <label id="lbl-wine2">Wein (12% Vol.)</label>
             <div class="input-row">
-              <input type="number" id="wineVolume" min="0" step="0.1" value="0" oninput="updateApp2()" />
+              <input type="number" id="wineVolume" min="0" step="0.01" value="0" oninput="updateApp2()" />
               <span class="unit-tag">Liter</span>
             </div>
           </div>
           <div class="form-group">
             <label id="lbl-spirits2">Spirituosen (40% Vol.)</label>
             <div class="input-row">
-              <input type="number" id="spiritsVolume" min="0" step="0.1" value="10" oninput="updateApp2()" />
+              <input type="number" id="spiritsVolume" min="0" step="0.1" value="0" oninput="updateApp2()" />
               <select id="spiritsUnit" style="width:140px" onchange="updateApp2()">
                 <option value="l">Liter</option>
                 <option value="cl" selected>Centiliter (cl)</option>
@@ -568,10 +669,11 @@
   </main>
 
   <script>
-    let currentLang = "ro";
+    let currentLang = "de";
     let chart1Instance = null;
     let chart2Instance = null;
     let chart3Instance = null;
+    let latestCalculatedBeerLiters = 13.19;
 
     const dict = {
       de: {
@@ -581,21 +683,24 @@
         tab2: "2. Promillerechner",
         tab3: "3. Konsumverlauf",
         heroTitle: "Blutalkohol-, Rückrechnungs- & Konsumverlaufs-Rechner",
-        heroSub: "Alle drei Rechner vereint in einer zweisprachigen Anwendung (Deutsch & Română) mit augenschonendem Dark Mode.",
+        heroSub: "Zweisprachige Analyse-Suite (Deutsch & Română) inklusive Fahrtzeit-Rückrechnung (Promille am Steuer).",
         weight: "Gewicht",
         height: "Größe",
         gender: "Geschlecht",
         male: "Männlich",
         female: "Weiblich",
-        duration: "Dauer des Konsums",
+        duration: "Gesamtdauer (Trinkbeginn bis Blutabnahme)",
+        driveHoursLbl: "Zeitpunkt der Fahrt (Stunden nach Trinkbeginn)",
         hours: "Stunden",
         calc: "Berechnen",
         note: "Wichtiger Hinweis: Diese Berechnung dient nur zur Orientierung und ersetzt keine medizinische oder rechtliche Beurteilung.",
-        app1Title: "Alkoholkonsumrechner mit Diagramm (Rückrechnung)",
-        app1Sub: "Berechnet rückwärts aus der erreichten Promillezahl (‰) und der Trinkdauer die erforderliche Trinkmenge.",
-        hintD1: "Konsumbeginn bis Blutabgabe! Beispiel: Anfang: 17:00 Uhr – Blutabgabe: 24:00 Uhr = 7 Stunden",
-        bak1: "Erreichte Promille? Wie hoch war die Promille?",
+        app1Title: "Alkoholkonsumrechner & Promille am Steuer (Rückrechnung)",
+        app1Sub: "Berechnet rückwärts die Trinkmenge sowie die Promille zum Zeitpunkt der Fahrt (am Steuer).",
+        bak1: "Gemessene Promille bei Blutabnahme?",
         res1Intro: (bak, dur) => `Um ungefähr ${bak} ‰ Promille nach ${dur} Stunden zu erreichen, müssten Sie ungefähr konsumieren:`,
+        driveTitle: "🚗 Promille am Steuer (Rückrechnung auf den Fahrtzeitpunkt)",
+        driveFormula: (bak, diff, elim, driveBak) => `Rechnung: ${bak} ‰ (Blutabnahme) + (${diff} Std. × 0,15 ‰/Std. = ${elim} ‰ Abbau) = ${driveBak} ‰ am Steuer`,
+        transferBtn: "Trinkmenge & Fahrtstunden in Rechner 2 übernehmen →",
         chart1Label: "Alkoholmenge (g)",
         chart1X: "Dauer (Stunden)",
         app2Title: "Promillerechner mit Diagramm",
@@ -627,21 +732,24 @@
         tab2: "2. Alcoolemie (‰)",
         tab3: "3. Evoluție Consum",
         heroTitle: "Calculator Alcoolemie, Calcul Invers & Evoluția Consumului",
-        heroSub: "Toate cele trei aplicații reunite într-o platformă bilingvă (Română & Deutsch) cu Mod Întunecat (Dark Mode) odihnitor pentru ochi.",
+        heroSub: "Platformă bilingvă (Română & Deutsch) cu calculul alcoolemiei la momentul conducerii (la volan).",
         weight: "Greutate",
         height: "Înălțime",
         gender: "Sex",
         male: "Masculin",
         female: "Feminin",
-        duration: "Durata consumului",
+        duration: "Durata totală (Început consum până la recoltare)",
+        driveHoursLbl: "Momentul conducerii (Ore de la începutul consumului)",
         hours: "Ore",
         calc: "Calculează",
         note: "Notă importantă: Acest calcul are doar scop orientativ și nu înlocuiește o evaluare medicală sau juridică.",
-        app1Title: "Calculator Consum de Alcool cu Grafic (Calcul Invers)",
-        app1Sub: "Calculează invers, pornind de la alcoolemia atinsă (‰) și durata consumului, cantitatea necesară de băutură.",
-        hintD1: "De la începutul consumului până la recoltarea sângelui! Exemplu: Început: 17:00 – Recoltare: 24:00 = 7 ore",
-        bak1: "Alcoolemia atinsă? Cât de mare a fost alcoolemia (‰)?",
+        app1Title: "Calculator Consum de Alcool & Alcoolemie la Volan (Calcul Invers)",
+        app1Sub: "Calculează invers cantitatea necesară de băutură și alcoolemia la momentul urcării la volan.",
+        bak1: "Alcoolemia măsurată la recoltare (‰)?",
         res1Intro: (bak, dur) => `Pentru a atinge aproximativ ${bak} ‰ promile după ${dur} ore, ar fi trebuit să consumați aproximativ:`,
+        driveTitle: "🚗 Alcoolemie la volan (Calcul invers la momentul conducerii)",
+        driveFormula: (bak, diff, elim, driveBak) => `Calcul: ${bak} ‰ (recoltare) + (${diff} ore × 0,15 ‰/oră = ${elim} ‰ eliminat) = ${driveBak} ‰ la volan`,
+        transferBtn: "Verifică cantitatea și orele în Calculatorul 2 →",
         chart1Label: "Cantitate alcool (g)",
         chart1X: "Durată (Ore)",
         app2Title: "Calculator Alcoolemie (Promile) cu Grafic",
@@ -668,6 +776,45 @@
       }
     };
 
+    function parseTimeStr(tStr) {
+      const p = (tStr || "00:00").split(":");
+      return (parseInt(p[0], 10) || 0) + ((parseInt(p[1], 10) || 0) / 60);
+    }
+
+    function diffHours(sDay, sTime, eDay, eTime) {
+      const sH = parseTimeStr(sTime);
+      const eH = parseTimeStr(eTime);
+      let dDiff = eDay - sDay;
+      if (dDiff < 0 || (dDiff === 0 && eH < sH)) dDiff += 7;
+      return Math.round((dDiff * 24 + (eH - sH)) * 100) / 100;
+    }
+
+    function calcTimeline() {
+      const sDay = parseInt(document.getElementById('tl-start-day').value, 10);
+      const sTime = document.getElementById('tl-start-time').value;
+      const dDay = parseInt(document.getElementById('tl-drive-day').value, 10);
+      const dTime = document.getElementById('tl-drive-time').value;
+      const bDay = parseInt(document.getElementById('tl-blood-day').value, 10);
+      const bTime = document.getElementById('tl-blood-time').value;
+
+      const driveHrs = diffHours(sDay, sTime, dDay, dTime);
+      const totalHrs = diffHours(sDay, sTime, bDay, bTime);
+
+      document.getElementById('drive1').value = driveHrs;
+      document.getElementById('d1').value = totalHrs;
+      updateApp1();
+    }
+
+    function transferToApp2() {
+      const driveHrs = parseFloat(document.getElementById('drive1').value) || 0;
+      document.getElementById('d2').value = driveHrs;
+      document.getElementById('beerVolume').value = latestCalculatedBeerLiters.toFixed(2);
+      document.getElementById('wineVolume').value = 0;
+      document.getElementById('spiritsVolume').value = 0;
+      updateApp2();
+      document.getElementById('sec-2').scrollIntoView({ behavior: 'smooth' });
+    }
+
     function calcDistFactor(weight, height, gender) {
       if (gender === 'male') {
         return 0.31608 - 0.004821 * weight + 0.004432 * height;
@@ -686,9 +833,6 @@
       } else if (field === 'gender') {
         document.getElementById('g1').value = val;
         document.getElementById('g2').value = val;
-      } else if (field === 'duration') {
-        document.getElementById('d1').value = val;
-        document.getElementById('d2').value = val;
       }
       updateApp1();
       updateApp2();
@@ -704,10 +848,11 @@
 
     function updateApp1() {
       const t = dict[currentLang];
-      const weight = parseFloat(document.getElementById('w1').value) || 80;
-      const height = parseFloat(document.getElementById('h1').value) || 180;
+      const weight = parseFloat(document.getElementById('w1').value) || 88;
+      const height = parseFloat(document.getElementById('h1').value) || 170;
       const gender = document.getElementById('g1').value;
       const duration = parseFloat(document.getElementById('d1').value) || 0;
+      const driveHrs = Math.min(duration, Math.max(0, parseFloat(document.getElementById('drive1').value) || 0));
       const targetBak = parseFloat(document.getElementById('targetBak').value) || 0;
 
       const r = calcDistFactor(weight, height, gender);
@@ -717,6 +862,21 @@
       const beerVol = (alcoholGrams / (5 * 0.8)) / 10;
       const wineVol = (alcoholGrams / (12 * 0.8)) / 10;
       const spiritsVol = (alcoholGrams / (40 * 0.8)) / 10;
+      latestCalculatedBeerLiters = beerVol;
+
+      const diffDriveBlood = Math.max(0, duration - driveHrs);
+      const elimDriveBlood = diffDriveBlood * 0.15;
+      const driveBak = targetBak + elimDriveBlood;
+
+      document.getElementById('res-drive-bak').textContent = driveBak.toFixed(2) + ' ‰';
+      document.getElementById('res-drive-diff').textContent = diffDriveBlood.toFixed(1) + ' h';
+      document.getElementById('res-drive-elim').textContent = '+' + elimDriveBlood.toFixed(2) + ' ‰';
+      document.getElementById('res-drive-formula').textContent = t.driveFormula(
+        targetBak.toFixed(2),
+        diffDriveBlood.toFixed(1),
+        elimDriveBlood.toFixed(2),
+        driveBak.toFixed(2)
+      );
 
       document.getElementById('res1-intro').textContent = t.res1Intro(targetBak.toFixed(2), duration);
       document.getElementById('res1-beer').textContent = beerVol.toFixed(2) + ' L';
@@ -763,8 +923,8 @@
 
     function updateApp2() {
       const t = dict[currentLang];
-      const weight = parseFloat(document.getElementById('w2').value) || 80;
-      const height = parseFloat(document.getElementById('h2').value) || 180;
+      const weight = parseFloat(document.getElementById('w2').value) || 88;
+      const height = parseFloat(document.getElementById('h2').value) || 170;
       const gender = document.getElementById('g2').value;
       const duration = parseFloat(document.getElementById('d2').value) || 0;
       const beerVol = parseFloat(document.getElementById('beerVolume').value) || 0;
@@ -905,10 +1065,16 @@
       document.getElementById('opt-m1').textContent = t.male;
       document.getElementById('opt-f1').textContent = t.female;
       document.getElementById('lbl-d1').textContent = t.duration;
-      document.getElementById('hint-d1').textContent = t.hintD1;
+      document.getElementById('lbl-drive1').textContent = t.driveHoursLbl;
       document.getElementById('unit-h1').textContent = t.hours;
+      document.getElementById('unit-hd1').textContent = t.hours;
       document.getElementById('lbl-bak1').textContent = t.bak1;
       document.getElementById('btn-calc1').textContent = t.calc;
+      document.getElementById('drive-res-title').textContent = t.driveTitle;
+      document.getElementById('btn-transfer').textContent = t.transferBtn;
+      document.getElementById('card-beer-lbl').textContent = lang === 'ro' ? 'Bere (5%)' : 'Bier (5%)';
+      document.getElementById('card-wine-lbl').textContent = lang === 'ro' ? 'Vin (12%)' : 'Wein (12%)';
+      document.getElementById('card-spirits-lbl').textContent = lang === 'ro' ? 'Spirtoase (40%)' : 'Spirituosen (40%)';
 
       document.getElementById('ui-app2-title').textContent = t.app2Title;
       document.getElementById('ui-app2-sub').textContent = t.app2Sub;
@@ -917,8 +1083,10 @@
       document.getElementById('lbl-g2').textContent = t.gender;
       document.getElementById('opt-m2').textContent = t.male;
       document.getElementById('opt-f2').textContent = t.female;
-      document.getElementById('lbl-d2').textContent = t.duration;
       document.getElementById('unit-h2').textContent = t.hours;
+      document.getElementById('lbl-beer2').textContent = lang === 'ro' ? 'Bere (5% vol.)' : 'Bier (5% Vol.)';
+      document.getElementById('lbl-wine2').textContent = lang === 'ro' ? 'Vin (12% vol.)' : 'Wein (12% Vol.)';
+      document.getElementById('lbl-spirits2').textContent = lang === 'ro' ? 'Băuturi spirtoase (40% vol.)' : 'Spirituosen (40% Vol.)';
       document.getElementById('btn-calc2').textContent = t.calc;
 
       document.getElementById('ui-app3-title').textContent = t.app3Title;
@@ -926,11 +1094,17 @@
       document.getElementById('p1-title').textContent = t.p1Title;
       document.getElementById('p1-freq').textContent = t.p1Freq;
       document.getElementById('lbl-ani1').textContent = t.p1Lbl;
+      document.getElementById('lbl-roBeri').textContent = lang === 'ro' ? 'Beri (0,5L):' : 'Bier (0,5L):';
+      document.getElementById('lbl-roDuble').textContent = lang === 'ro' ? 'Duble (Șnaps):' : 'Doppelte / Schnäpse:';
       document.getElementById('p2-title').textContent = t.p2Title;
       document.getElementById('p2-freq').textContent = t.p2Freq;
       document.getElementById('lbl-ani2').textContent = t.p2Lbl;
+      document.getElementById('lbl-deBeri').textContent = lang === 'ro' ? 'Beri (Media pe săptămână):' : 'Bier (Ø pro Woche):';
+      document.getElementById('lbl-deDuble').textContent = lang === 'ro' ? 'Duble (Media pe săptămână):' : 'Doppelte (Ø pro Woche):';
       document.getElementById('p3-title').textContent = t.p3Title;
       document.getElementById('p3-freq').textContent = t.p3Freq;
+      document.getElementById('lbl-maxBeri').textContent = lang === 'ro' ? 'Beri MAX (0,5L):' : 'Bier MAX (0,5L):';
+      document.getElementById('lbl-maxDuble').textContent = lang === 'ro' ? 'Duble MAX:' : 'Doppelte / Schnäpse MAX:';
 
       updateApp1();
       updateApp2();
